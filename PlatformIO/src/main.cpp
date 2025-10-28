@@ -11,6 +11,7 @@
 #include "mas245_logo_bitmap.h"
 
 
+
 namespace carrier
 {
   namespace pin
@@ -32,7 +33,7 @@ namespace carrier
     constexpr uint8_t screenHeight{64}; // OLED display height in pixels
   }
 }
-
+CAN_message_t receiveCan();
 
 namespace images
 {
@@ -156,7 +157,6 @@ void loop() {
     message.temperature = 23.10 * std::sin(x);
     sendCan(message);
   }
-  
 }
 
 
@@ -174,6 +174,35 @@ void sendCan()
   //Can1.write(msg);
 }
 
+CAN_message_t receiveCan() {
+  static CAN_message_t msg,rxmsg;
+
+  while(can0.read(rxmsg))
+  { 
+     String CANStr(""); 
+     for (int i=0; i < 8; i++) {     
+
+         CANStr += String(rxmsg.buf[i],HEX);
+         CANStr += (" ") ;
+     }
+     Serial.print(rxmsg.id,HEX); 
+     Serial.print(' '); 
+     Serial.print(rxmsg.len,HEX); 
+     Serial.print(' ');
+     Serial.println(CANStr);  
+     
+     display.fillRect(0,15,128, 30,BLACK);
+     display.setCursor(0,15);
+     
+     display.println(rxmsg.id,HEX); 
+     display.println(rxmsg.len,HEX); 
+     display.println(CANStr);
+     display.display();
+
+     return rxmsg;
+  }
+  return rxmsg;
+}
 
 
 void sendCan(const Message& message) {
