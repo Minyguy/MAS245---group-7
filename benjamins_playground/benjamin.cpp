@@ -1,10 +1,9 @@
 #define OC1 PB1
-#define OCR OCR1A
-#define TIMSK TIMSK1
-#define COM1A1 COM11
 #define TIMER1_PWM_INIT _BV(WGM10) | _BV(WGM11) | _BV(COM1A1)
 #define TIMER1_CLOCKSOURCE _BV(CS10) /* full clock */
-
+/* _BV betyr bitvalue og er tilsvarer et bit, som er definert ved navn på de forskjellige hardwarene
+   hvor f.ex COM1A1 kan 
+*/
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -29,7 +28,7 @@ ISR (TIMER1_OVF_vect)       /* Note [2] */
                 direction = UP;
             break;
     }
-    OCR = pwm;          /* Note [5] */
+    OCR1A = pwm;          /* Note [5] */
 }
 
 void timer_init(){
@@ -44,14 +43,14 @@ void timer_init(){
     TCCR1B |= TIMER1_CLOCKSOURCE;
 
     /* Set PWM value to 0. */
-    OCR = 0;
+    OCR1A = 0;
 
     /* Enable OC1 as output. */
     /* DDRB er et pre-determined variabelnavn definert i avr/io.h */
-    DDRB = _BV (OC1);
+    DDRB = _BV (PB1);
 
     /* Enable timer 1 overflow interrupt. */
-    TIMSK = _BV (TOIE1);
+    TIMSK1 = _BV (TOIE1);
     sei ();
 }
 
